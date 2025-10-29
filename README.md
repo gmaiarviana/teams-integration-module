@@ -66,15 +66,15 @@ Notas:
 - `API_KEY` será usada pelos clientes (ex.: FlakeFlow) via header `X-API-Key`.
 
 ## Scripts NPM
-Os scripts podem variar conforme a implementação evolui. Exemplo esperado:
+Estado atual dos scripts:
 
 ```json
 {
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node build/server.js",
-    "test": "echo \"(tests pendentes)\" && exit 0"
+    "start": "node build/index.js",
+    "test": "echo \"(tests pendentes)\""
   }
 }
 ```
@@ -84,8 +84,6 @@ Ambiente de desenvolvimento (hot-reload):
 
 ```powershell
 npm run dev
-# Em outro terminal
-Invoke-WebRequest -Uri "http://localhost:3000/health" -Method GET
 ```
 
 Build + execução (produção local):
@@ -94,6 +92,8 @@ Build + execução (produção local):
 npm run build
 npm run start
 ```
+
+Nota: os endpoints HTTP (health, bot e API REST) serão introduzidos no Épico 3 (`src/server.ts`). No estado atual, o entrypoint apenas valida a configuração/compilação.
 
 ## Endpoints
 - `GET /health` — Health check do serviço

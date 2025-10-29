@@ -29,10 +29,11 @@ Microsoft Teams
 
 ## 📊 Estado Atual (Atualizado em 29/10/2025)
 
-- 📋 Planejamento do microserviço em andamento
-- 🔜 Próximos passos: Setup base do repositório e migração do código do bot
+- ✅ ÉPICO 1 concluído (1.1–1.4)
+- ✅ 2.1 Bot Adapter implementado
+- 🔜 Próximos passos: 2.2 Handlers e 2.3 Proactive Service
 
-**Status Geral:** ÉPICO 1 em planejamento
+**Status Geral:** Avançando no ÉPICO 2
 
 **Metas de Sucesso (Definition of Done Global)**
 - Sucesso 1: Código deployado em produção na Azure e acessível publicamente
@@ -64,81 +65,33 @@ Observação: manter `botId` e pacote de app do Teams existentes; atualizar apen
 
 #### Funcionalidades
 
-##### 1.1 Estrutura de Diretórios e Git
-- **Descrição:** Criar estrutura de pastas e inicializar Git.
-- **Critérios de Aceite:**
-  - ✅ Diretório `teams-integration-module` criado
-  - ✅ Git inicializado com `.gitignore`
-  - ✅ Estrutura de pastas:
-    
-      teams-integration-module/
-      ├── src/
-      │   ├── bot/
-      │   ├── api/
-      │   ├── storage/
-      │   └── config/
-      ├── tests/
-      ├── docs/
-      ├── .gitignore
-      └── README.md
-  
-- **Validação PowerShell:**
-  
-      cd C:\Users\guilherme_viana\Desktop\PRAIA\teams-integration-module
-      Test-Path -Path "src/bot"
-      Test-Path -Path "src/api"
-      Test-Path -Path ".git"
-      git status
+##### 1.1 Estrutura de Diretórios e Git ✅
+- **Status:** Concluída
+- **Implementação:** 
+  - Estrutura criada: `src/{bot,api,storage,config}`, `tests`, `docs`
+  - Git inicializado e `.gitignore` adicionado
+- **Commit:** `feat: estrutura inicial e .gitignore - Funcionalidade 1.1`
 
-##### 1.2 Package.json e Dependências Base
-- **Descrição:** Configurar `package.json` e instalar dependências essenciais.
-- **Critérios de Aceite:**
-  - ✅ `package.json` com:
-    - Nome: `teams-integration-module`
-    - Scripts: `dev`, `build`, `start`, `test`
-    - Dependências: `botbuilder`, `botframework-connector`, `express`, `@azure/identity`, `cors`, `helmet`, `zod`, `dotenv`
-    - DevDependencies: `typescript`, `tsx`, `@types/node`, `@types/express`
-  - ✅ `npm install` executado com sucesso
-  - ✅ `node_modules` criado
-- **Validação PowerShell:**
-  
-      cd C:\Users\guilherme_viana\Desktop\PRAIA\teams-integration-module
-      Test-Path -Path "package.json"
-      Test-Path -Path "node_modules"
-      Get-Content package.json | Select-String "botbuilder"
-      npm list --depth=0
+##### 1.2 Package.json e Dependências Base ✅
+- **Status:** Concluída
+- **Implementação:** 
+  - `package.json` com scripts (`dev`, `build`, `start`, `test`) e dependências base
+  - Dependências instaladas com sucesso (`node_modules` presente)
+- **Commit:** `feat: adiciona package.json e dependências base - Funcionalidade 1.2`
 
-##### 1.3 TypeScript Configuration
-- **Descrição:** Configurar `tsconfig.json` para Node.js + Express.
-- **Critérios de Aceite:**
-  - ✅ `tsconfig.json` com:
-    - `target`: ES2020
-    - `module`: commonjs
-    - `outDir`: `./build`
-    - `rootDir`: `./src`
-    - `strict`: true
-  - ✅ Arquivo teste `src/index.ts` compila sem erros
-- **Validação PowerShell:**
-  
-      cd C:\Users\guilherme_viana\Desktop\PRAIA\teams-integration-module
-      Test-Path -Path "tsconfig.json"
-      npm run build
-      Test-Path -Path "build/index.js"
+##### 1.3 TypeScript Configuration ✅
+- **Status:** Concluída
+- **Implementação:** 
+  - `tsconfig.json` (ES2020, commonjs, outDir `build`, rootDir `src`, strict `true`)
+  - `src/index.ts` adicionando entrypoint mínimo e build ok
+- **Commit:** `feat: configura TypeScript e entrypoint - Funcionalidade 1.3`
 
-##### 1.4 Environment Variables Setup
-- **Descrição:** Configurar variáveis de ambiente com validação via Zod.
-- **Critérios de Aceite:**
-  - ✅ `src/config/env.ts` com validação Zod
-  - ✅ `.env.example` com variáveis necessárias: `TEAMS_BOT_ID`, `TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID`, `API_KEY`, `PORT`
-  - ✅ `.env` local (não commitado)
-  - ✅ Validação falha se variável obrigatória ausente
-- **Validação PowerShell:**
-  
-      cd C:\Users\guilherme_viana\Desktop\PRAIA\teams-integration-module
-      Test-Path -Path ".env.example"
-      Test-Path -Path "src/config/env.ts"
-      Get-Content .env.example
-      npm run build
+##### 1.4 Environment Variables Setup ✅
+- **Status:** Concluída
+- **Implementação:** 
+  - `src/config/env.ts` com Zod validando `TEAMS_BOT_ID`, `TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID`, `API_KEY`, `PORT`
+  - `.env.example` criado
+- **Commit:** `feat: validação de env e exemplo de variáveis - Funcionalidade 1.4`
 
 ---
 
@@ -150,20 +103,11 @@ Observação: manter `botId` e pacote de app do Teams existentes; atualizar apen
 
 #### Funcionalidades
 
-##### 2.1 Bot Adapter com Managed Identity
-- **Descrição:** Inicializar `BotFrameworkAdapter` preparado para Managed Identity.
-- **Critérios de Aceite:**
-  - ✅ `src/bot/adapter.ts` criado
-  - ✅ Adapter com `appId` do env e `DefaultAzureCredential`
-  - ✅ Error handler configurado
-  - ✅ Service URL trust implementado
-  - ✅ Adapter exportado para uso em rotas
-- **Validação PowerShell:**
-  
-      npm run build
-      Test-Path -Path "build/bot/adapter.js"
-      Get-Content src/bot/adapter.ts | Select-String "BotFrameworkAdapter"
-      Get-Content src/bot/adapter.ts | Select-String "DefaultAzureCredential"
+##### 2.1 Bot Adapter com Managed Identity ✅
+- **Status:** Concluída
+- **Implementação:** 
+  - `src/bot/adapter.ts` com `BotFrameworkAdapter`, `DefaultAzureCredential`, `onTurnError`, `trustServiceUrl()`
+- **Commit:** `feat: cria BotFrameworkAdapter com MI-ready e error handler - Funcionalidade 2.1`
 
 ##### 2.2 Message Handlers
 - **Descrição:** Handlers para processar mensagens recebidas do Teams.
