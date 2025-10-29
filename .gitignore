@@ -10,3 +10,5 @@ coverage/
 .tmp/
 .vscode/
 
+docs/SECRETS.local.md
+
