@@ -187,3 +187,32 @@ Benefícios do Docker: imutabilidade do ambiente e portabilidade. Custo/complexi
 - `ROADMAP.md` — plano de migração, épicos e referências ao FlakeFlow
 
 
+## Testes com túnel (ngrok) para Teams
+
+Para testar no Microsoft Teams usando um endpoint público (ex.: ngrok):
+
+1. Inicie o túnel apontando para sua porta local (3000):
+   ```powershell
+   # Exemplo: já possui o túnel ativo
+   # URL pública: https://<seu-tunel>.ngrok-free.app
+   ```
+2. No Azure Bot Service, configure o Messaging Endpoint para:
+   - `https://<seu-tunel>.ngrok-free.app/bot/messages`
+3. Garanta que o `.env` local contenha os identificadores reais do seu bot:
+   ```env
+   TEAMS_BOT_ID=<Application (client) ID do App Registration>
+   # Opcional (fallback): se usar Client Secret localmente
+   TEAMS_BOT_PASSWORD=<client secret>
+   PORT=3000
+   ```
+4. Rode a aplicação localmente:
+   ```powershell
+   npm run dev
+   ```
+5. No Teams (chat pessoal), envie uma mensagem ao bot e verifique no console o log e a resposta (echo).
+
+Observações:
+- Se ocorrer `401 Invalid AppId passed on token`, verifique se o `TEAMS_BOT_ID` do `.env` é exatamente o mesmo `Application (client) ID` configurado no Azure Bot Service.
+- Para testes com o Bot Framework Emulator local (sem Teams), você pode apontar para `http://localhost:3000/bot/messages` e desabilitar autenticação no Emulator.
+
+
