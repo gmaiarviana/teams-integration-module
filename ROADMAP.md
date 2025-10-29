@@ -27,18 +27,20 @@ Microsoft Teams
 
 ---
 
-## 📊 Estado Atual (Atualizado em 29/10/2025)
+## 📊 Estado Atual
 
-- ✅ ÉPICO 1 concluído (1.1–1.4)
-- ✅ 2.1 Bot Adapter implementado
-- 🔜 Próximos passos: 2.2 Handlers e 2.3 Proactive Service
+**Filosofia:** Implementação incremental focada em testar continuamente - fazer o mínimo necessário de cada vez, validar que funciona, depois avançar.
 
-**Status Geral:** Avançando no ÉPICO 2
+- ✅ ÉPICO 1 concluído (1.1–1.4): Setup base
+- ✅ Handlers implementados (src/bot/handlers.ts com storage em memória)
+- 🔜 Próximo: ÉPICO 2 - Bot conversacional funcional
 
-**Metas de Sucesso (Definition of Done Global)**
-- Sucesso 1: Código deployado em produção na Azure e acessível publicamente
-- Sucesso 2: Enviar mensagem no Teams e vê-la refletida no sistema (logs/eventos)
-- Sucesso 3: Envio proativo a partir de comando do sistema (FlakeFlow → API → Teams)
+**Status Geral:** Pronto para implementar servidor Express e wiring dos handlers
+
+**Metas de Sucesso Incrementais**
+- Meta 1: Bot responde no Teams (echo funcional) + deploy Azure
+- Meta 2: Envio proativo básico via API funciona
+- Meta 3: Features adicionais conforme necessidade
 
 ---
 
@@ -95,265 +97,199 @@ Observação: manter `botId` e pacote de app do Teams existentes; atualizar apen
 
 ---
 
-## 🤖 ÉPICO 2: Migração Código Bot
+## 🤖 ÉPICO 2: Bot Conversacional Funcional
 
-**Contexto:** Migrar código do bot do monolito FlakeFlow para o microserviço.
+**Contexto:** Criar servidor Express básico, conectar handlers do bot e fazer deploy na Azure para bot responder no Teams.
 
 **Dependências:** ÉPICO 1 completo
 
+**Meta:** Bot responde no Teams + deploy na Azure funcionando
+
 #### Funcionalidades
 
-##### 2.1 Bot Adapter com Managed Identity ✅
-- **Status:** Concluída
-- **Implementação:** 
-  - `src/bot/adapter.ts` com `BotFrameworkAdapter`, `DefaultAzureCredential`, `onTurnError`, `trustServiceUrl()`
-- **Commit:** `feat: cria BotFrameworkAdapter com MI-ready e error handler - Funcionalidade 2.1`
-
-##### 2.2 Message Handlers
-- **Descrição:** Handlers para processar mensagens recebidas do Teams.
+##### 2.1 Express Server + Bot Endpoint
+- **Descrição:** Criar servidor Express mínimo com endpoint do Bot Framework.
 - **Critérios de Aceite:**
-  - ✅ `src/bot/handlers.ts` criado
-  - ✅ `onMessage` (echo básico)
-  - ✅ `onConversationUpdate` (captura instalação)
-  - ✅ Conversation reference salvo (memória; persistência no ÉPICO 3)
-  - ✅ Logs estruturados com timestamp e `tenantId`
-- **Validação PowerShell:**
+  - ✅ `src/server.ts` criado
+  - ✅ Express server na porta do env (default 3000)
+  - ✅ Middleware `express.json()`
+  - ✅ Endpoint `POST /bot/messages` usando adapter
+  - ✅ Wire com handlers: `onMessage` e `onConversationUpdate`
+  - ✅ Logs básicos de requisições
+- **Validação:**
   
-      npm run build
-      Test-Path -Path "build/bot/handlers.js"
-      Get-Content src/bot/handlers.ts | Select-String "onMessage"
-      Get-Content src/bot/handlers.ts | Select-String "onConversationUpdate"
+      npm run dev
+      # Em outro terminal, simular chamada do Bot Framework
+      Invoke-WebRequest -Uri "http://localhost:3000/bot/messages" -Method POST -Headers @{ "Content-Type" = "application/json" } -Body '{}'
+- **Nota:** Usar código do FlakeFlow como referência (`apps/back/src/services/teams-bot/index.ts`)
 
-##### 2.3 Proactive Messaging Service
-- **Descrição:** Serviço para envios proativos.
+##### 2.2 Echo Básico Funcional
+- **Descrição:** Testar que bot responde mensagens no Teams.
 - **Critérios de Aceite:**
-  - ✅ `src/bot/proactive.ts` criado
-  - ✅ `sendProactiveMessage(userId, tenantId, message)`
-  - ✅ `sendProactiveCard(userId, tenantId, card)`
-  - ✅ Busca conversation reference do storage
-  - ✅ Usa `adapter.continueConversation()`
-  - ✅ Erro claro se reference inexistente
-- **Validação PowerShell:**
+  - ✅ Bot instalado no Teams (usar `flakeflow-teams-app.zip` existente)
+  - ✅ Mensagem enviada no Teams aparece nos logs
+  - ✅ Bot responde "You said: {texto}"
+  - ✅ Logs mostram `tenantId`, `userId`, texto recebido
+- **Validação:**
+  - Instalar app no Teams (chat pessoal)
+  - Enviar "teste" para o bot
+  - Verificar logs local + resposta no Teams
+
+##### 2.3 Health Check
+- **Descrição:** Endpoint simples para verificar se serviço está rodando.
+- **Critérios de Aceite:**
+  - ✅ `GET /health` retorna 200 OK
+  - ✅ JSON: `{ status: "ok", timestamp: "..." }`
+- **Validação:**
   
-      npm run build
-      Test-Path -Path "build/bot/proactive.js"
-      Get-Content src/bot/proactive.ts | Select-String "sendProactiveMessage"
-      Get-Content src/bot/proactive.ts | Select-String "continueConversation"
+      Invoke-WebRequest -Uri "http://localhost:3000/health" -Method GET
+
+##### 2.4 Deploy Azure
+- **Descrição:** Publicar código na Azure e validar funcionamento.
+- **Critérios de Aceite:**
+  - ✅ Criar App Service na Azure (ou usar existente)
+  - ✅ Deploy do código (zip ou runtime direto)
+  - ✅ Health check responde em produção
+  - ✅ Atualizar Messaging Endpoint do Bot Service
+  - ✅ Bot continua respondendo no Teams
+- **Validação:**
+  
+      Invoke-WebRequest -Uri "https://flakeflow-teams-api.azurewebsites.net/health" -Method GET
+      # Enviar mensagem no Teams e verificar resposta
 
 ---
 
-## 🌐 ÉPICO 3: API REST Microserviço
+## 🔔 ÉPICO 3: Envio Proativo Básico
 
-**Contexto:** Expor API REST para o FlakeFlow consumir.
+**Contexto:** Implementar envio proativo de mensagens via API REST.
 
 **Dependências:** ÉPICO 2 completo
 
+**Meta:** Conseguir enviar mensagem proativa para usuário no Teams via chamada API
+
 #### Funcionalidades
 
-##### 3.1 Express Server Base
-- **Descrição:** Servidor Express com middlewares básicos.
+##### 3.1 Storage Conversation References
+- **Descrição:** Manter conversation references dos usuários que instalaram o bot.
 - **Critérios de Aceite:**
-  - ✅ `src/server.ts` criado
-  - ✅ Porta do env (default 3000)
-  - ✅ Middlewares: `express.json()`, `cors()`, `helmet()`
-  - ✅ Health check `GET /health`
-  - ✅ Logs de inicialização
-- **Validação PowerShell:**
-  
-      cd C:\Users\guilherme_viana\Desktop\PRAIA\teams-integration-module
-      npm run dev
-      # Em outro terminal:
-      Invoke-WebRequest -Uri "http://localhost:3000/health" -Method GET
+  - ✅ Storage em memória (Map) implementado nos handlers existentes
+  - ✅ On `conversationUpdate`: salvar reference no Map
+  - ✅ Função `getConversationReference(tenantId, userId)` retorna reference
+  - ✅ Log quando reference é salvo
+- **Nota:** Já implementado em `src/bot/handlers.ts` - conversar sobre fazer persistência após validação
 
-##### 3.2 Bot Webhook Endpoint
-- **Descrição:** Endpoint para processar atividades do Bot Framework.
-- **Critérios de Aceite:**
-  - ✅ `POST /bot/messages`
-  - ✅ Usa adapter do ÉPICO 2
-  - ✅ Retorna 200 OK após processar
-  - ✅ Logs de atividades com `tenantId`
-  - ✅ Error handling 500 em falhas
-- **Validação Esperada:**
-  - Bot responde "You said: teste" no Teams
-  - Logs mostram atividade recebida com `tenantId`
-
-##### 3.3 Send Message Endpoint
+##### 3.2 Proactive Message Endpoint
 - **Descrição:** Endpoint para envio proativo de mensagem de texto.
 - **Critérios de Aceite:**
   - ✅ `POST /api/send-message`
-  - ✅ Autenticação via API Key (`X-API-Key`)
-  - ✅ Payload válido:
-    
-        {
-          "userId": "29:1Bwj...",
-          "tenantId": "17c50773-...",
-          "message": "texto"
-        }
+  - ✅ Payload: `{ userId, tenantId, message }`
+  - ✅ Busca conversation reference do storage
+  - ✅ Usa `adapter.continueConversation()` para enviar
+  - ✅ Retorna sucesso/erro claro
+  - ✅ Log de envio
+- **Validação:**
   
-  - ✅ Chama `sendProactiveMessage()`
-  - ✅ Resposta clara de sucesso/erro
-- **Validação PowerShell:**
-  
-      $body = @{ userId = "29:1Bwj5..."; tenantId = "17c50773-..."; message = "Test" } | ConvertTo-Json
-      $headers = @{ "Content-Type" = "application/json"; "X-API-Key" = "test-key-123" }
-      Invoke-WebRequest -Uri "http://localhost:3000/api/send-message" -Method POST -Headers $headers -Body $body
+      $body = @{ userId = "29:1Bwj..."; tenantId = "17c50773-..."; message = "Teste proativo" } | ConvertTo-Json
+      Invoke-WebRequest -Uri "http://localhost:3000/api/send-message" -Method POST -Headers @{ "Content-Type" = "application/json" } -Body $body
+  - Verificar que mensagem aparece no Teams do usuário
 
-##### 3.4 Send Card Endpoint
-- **Descrição:** Endpoint para envio de Adaptive Cards.
+##### 3.3 API Key Authentication
+- **Descrição:** Proteger endpoint com autenticação básica via API Key.
 - **Critérios de Aceite:**
-  - ✅ `POST /api/send-card`
-  - ✅ Autenticação via API Key
-  - ✅ Payload com `card` (JSON do Adaptive Card)
-  - ✅ Chama `sendProactiveCard()`
-  - ✅ Resposta clara de sucesso/erro
-- **Validação PowerShell:**
+  - ✅ Middleware verifica header `X-API-Key`
+  - ✅ Compara com `API_KEY` do env
+  - ✅ Retorna 401 se inválido
+- **Validação:**
   
-      $card = @{ type = "AdaptiveCard"; version = "1.4"; body = @(@{ type = "TextBlock"; text = "Aprovação Pendente"; weight = "Bolder"; size = "Large" }); actions = @(@{ type = "Action.Submit"; title = "Aprovar"; data = @{ action = "approve" } }) }
-      $body = @{ userId = "29:1Bwj..."; tenantId = "17c50773-..."; card = $card } | ConvertTo-Json -Depth 10
-      Invoke-WebRequest -Uri "http://localhost:3000/api/send-card" -Method POST -Headers $headers -Body $body
+      # Sem API key (deve falhar)
+      Invoke-WebRequest -Uri "http://localhost:3000/api/send-message" -Method POST
+      
+      # Com API key válida (deve funcionar)
+      Invoke-WebRequest -Uri "http://localhost:3000/api/send-message" -Method POST -Headers @{ "X-API-Key" = "sua-api-key" }
+
+##### 3.4 Teste End-to-End
+- **Descrição:** Validar fluxo completo de envio proativo.
+- **Critérios de Aceite:**
+  - ✅ Instalar bot no Teams
+  - ✅ Fazer POST para `/api/send-message`
+  - ✅ Mensagem chega no Teams do usuário
+  - ✅ Logs mostram sucesso
+- **Script PowerShell de Teste:**
+  
+      # 1. Pegar conversation reference dos logs após instalar bot
+      # 2. Usar userId e tenantId no POST
+      $body = @{
+          userId = "29:xxxxx"
+          tenantId = "xxxxx"
+          message = "Teste de envio proativo!"
+      } | ConvertTo-Json
+      
+      Invoke-RestMethod -Uri "http://localhost:3000/api/send-message" -Method POST -Headers @{ "Content-Type" = "application/json"; "X-API-Key" = "sua-key" } -Body $body
 
 ---
 
-## ☁️ ÉPICO 4: Deploy Azure + Managed Identity
+## 📈 ÉPICO 4: Robustez e Features (Opcional - Conforme Necessidade)
 
-**Contexto:** Publicar o microserviço na Azure com Managed Identity.
+**Contexto:** Adicionar funcionalidades e melhorias conforme necessidade real.
 
 **Dependências:** ÉPICO 3 completo
 
-#### Funcionalidades
+**Observação:** Estes itens podem ser implementados conforme demanda real. Priorizar baseado em feedback de uso.
 
-##### 4.1 Dockerfile Production-Ready
-- **Descrição:** Dockerfile otimizado para produção.
-- **Critérios de Aceite:**
-  - ✅ Dockerfile na raiz
-  - ✅ `.dockerignore` (node_modules, .env, .git, tests)
-  - ✅ Multi-stage (recomendado)
-  - ✅ Base `node:20-alpine`
-  - ✅ Build TypeScript dentro do container
-  - ✅ Expor porta 3000
-- **Validação PowerShell:**
-  
-      cd C:\Users\guilherme_viana\Desktop\PRAIA\teams-integration-module
-      docker build -t teams-integration-module:test .
-      docker images | Select-String "teams-integration-module"
+#### Possíveis Funcionalidades Futuras
 
-##### 4.2 Azure Resource Group e App Service
-- **Descrição:** Criar recursos via Azure CLI.
-- **Critérios de Aceite:**
-  - ✅ `az login`
-  - ✅ Resource Group: `teams-integration-rg`
-  - ✅ App Service Plan: `teams-integration-plan` (B1, Linux)
-  - ✅ Web App: `flakeflow-teams-api` (Node 20)
-- **Validação PowerShell:**
-  
-      az group show --name teams-integration-rg
-      az appservice plan show --name teams-integration-plan --resource-group teams-integration-rg
-      az webapp show --name flakeflow-teams-api --resource-group teams-integration-rg
+##### 4.1 Persistência Conversation References
+- **Quando:** Quando precisa sobreviver reinicializações
+- **Opções:** Redis, PostgreSQL, Cosmos DB
+- **Complexidade:** Média
 
-##### 4.3 Managed Identity Configuration
-- **Descrição:** Habilitar User-Assigned Managed Identity no Web App.
-- **Critérios de Aceite:**
-  - ✅ Identidade atribuída ao Web App
-  - ✅ Comando executado:
-    
-        az webapp identity assign --name flakeflow-teams-api --resource-group teams-integration-rg --identities /subscriptions/.../managedIdentities/flakeflow-teams-bot-identity
-  
-- **Validação PowerShell:**
-  
-      az webapp identity show --name flakeflow-teams-api --resource-group teams-integration-rg
+##### 4.2 Adaptive Cards
+- **Quando:** Precisar aprovação interativa no Teams
+- **Implementação:** Endpoint `/api/send-card` + processamento de ações
+- **Complexidade:** Média-Alta
 
-##### 4.4 Environment Variables Azure
-- **Descrição:** Configurar variáveis de ambiente no Web App.
-- **Critérios de Aceite:**
-  - ✅ `TEAMS_BOT_ID`
-  - ✅ `TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID`
-  - ✅ `API_KEY`
-  - ✅ `PORT` (3000)
-- **Validação PowerShell:**
-  
-      az webapp config appsettings list --name flakeflow-teams-api --resource-group teams-integration-rg
+##### 4.3 Integração FlakeFlow
+- **Quando:** Quiser disparar notificações do workflow FlakeFlow
+- **Implementação:** Cliente HTTP no FlakeFlow + hooks nos nós de aprovação
+- **Complexidade:** Alta (cross-project)
 
-##### 4.5 Deploy e Messaging Endpoint Update
-- **Descrição:** Deploy do código e atualização do Messaging Endpoint.
-- **Critérios de Aceite:**
-  - ✅ Deploy via `az webapp up` ou `az webapp deploy` (zip/container)
-  - ✅ App acessível: `https://flakeflow-teams-api.azurewebsites.net`
-  - ✅ Health: `GET /health` retorna 200
-  - ✅ Bot Service com Messaging Endpoint: `https://flakeflow-teams-api.azurewebsites.net/bot/messages`
-  - ✅ Status "Valid" no Portal
-- **Validação PowerShell:**
-  
-      Invoke-WebRequest -Uri "https://flakeflow-teams-api.azurewebsites.net/health" -Method GET
+##### 4.4 Dashboard de Logs
+- **Quando:** Precisar monitorar envios de mensagens
+- **Implementação:** Página web simples ou logs estruturados no App Service
+- **Complexidade:** Baixa-Média
+
+##### 4.5 Retry Logic e Error Handling
+- **Quando:** Detectar falhas temporárias no envio
+- **Implementação:** Lógica de retry com exponential backoff
+- **Complexidade:** Baixa-Média
+
+##### 4.6 Testes Automatizados
+- **Quando:** Quiser garantir qualidade do código
+- **Implementação:** Jest + testes de integração
+- **Complexidade:** Média
 
 ---
 
-## 🔗 ÉPICO 5: Integração FlakeFlow Client
+## 📌 Definition of Done por Meta Incremental
 
-**Contexto:** FlakeFlow consumir o microserviço via REST.
+- **Meta 1: Bot Conversacional Funcional (ÉPICO 2)**
+  - ✅ Servidor Express rodando com endpoint `/bot/messages`
+  - ✅ Bot instalado no Teams via app package
+  - ✅ Mensagem no Teams recebida e logada
+  - ✅ Bot responde echo básico no Teams
+  - ✅ Health check `/health` funcional
+  - ✅ Deploy na Azure concluído
 
-**Dependências:** ÉPICO 4 completo
+- **Meta 2: Envio Proativo Funcional (ÉPICO 3)**
+  - ✅ Conversation references sendo salvos em memória
+  - ✅ Endpoint `/api/send-message` implementado
+  - ✅ POST com userId/tenantId envia mensagem para o Teams
+  - ✅ API Key authentication funcionando
+  - ✅ Logs mostram envio com sucesso/erro
 
-#### Funcionalidades
-
-##### 5.1 Configuração do Cliente HTTP
-- **Descrição:** Criar cliente com `baseURL` e `X-API-Key`.
-- **Critérios de Aceite:**
-  - ✅ Variável `TEAMS_API_BASE_URL` no FlakeFlow
-  - ✅ Variável `TEAMS_API_KEY` no FlakeFlow
-  - ✅ Teste de conexão (health)
-
-##### 5.2 Envio de Mensagens do Workflow
-- **Descrição:** Invocar `/api/send-message` e `/api/send-card` quando apropriado.
-- **Critérios de Aceite:**
-  - ✅ Envio condicionado a preferências do usuário
-  - ✅ Logs de sucesso/falha
-  - ✅ Não bloquear o workflow em caso de falha
-
-##### 5.3 Observabilidade Mínima
-- **Descrição:** Logs estruturados no FlakeFlow para requisições ao microserviço.
-- **Critérios de Aceite:**
-  - ✅ Correlation ID por requisição
-  - ✅ Latência e status code
-  - ✅ Payload mínimo (sem dados sensíveis)
-
----
-
-## ✅ ÉPICO 6: Testes End-to-End
-
-**Contexto:** Validar ponta-a-ponta: FlakeFlow → API → Teams → Logs.
-
-**Dependências:** ÉPICO 5 completo
-
-#### Funcionalidades
-
-##### 6.1 Testes de Mensagens Reativas
-- **Critérios de Aceite:**
-  - ✅ Mensagem enviada no Teams aparece no log do microserviço
-  - ✅ Bot responde echo básico
-
-##### 6.2 Testes de Mensagens Proativas
-- **Critérios de Aceite:**
-  - ✅ Chamada ao `/api/send-message` entrega mensagem ao usuário
-  - ✅ Chamada ao `/api/send-card` exibe Adaptive Card com ação
-  - ✅ Logs capturam sucesso/erro com `tenantId`
-
----
-
-## 📌 Definition of Done por Meta de Sucesso
-
-- **Sucesso 1 (Deploy Azure):**
-  - Health check responde 200 em produção
-  - Identity atribuída e appsettings configurados
-  - Messaging Endpoint do Bot válido
-
-- **Sucesso 2 (Mensagem vista no sistema):**
-  - Logs mostram recebimento de atividade do Teams com `tenantId`
-  - Resposta echo visível no chat do usuário
-
-- **Sucesso 3 (Envio proativo por comando do sistema):**
-  - FlakeFlow aciona `/api/send-message` com sucesso 200
-  - Mensagem chega ao Teams do destinatário
-  - Log de envio persistido (mínimo: status, tenantId, userId, timestamp)
+- **Meta 3: Pronto para Uso (Opcional - ÉPICO 4)**
+  - Conforme necessidade real surgir
+  - Exemplos: persistência, adaptive cards, retry logic, etc.
 
 ---
 

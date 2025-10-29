@@ -93,7 +93,7 @@ npm run build
 npm run start
 ```
 
-Nota: os endpoints HTTP (health, bot e API REST) serão introduzidos no Épico 3 (`src/server.ts`). No estado atual, o entrypoint apenas valida a configuração/compilação.
+Nota: os endpoints HTTP (health e bot) serão introduzidos no Épico 2 (`src/server.ts`). A API REST proativa será implementada no Épico 3. No estado atual, o entrypoint apenas valida a configuração/compilação.
 
 ## Endpoints
 - `GET /health` — Health check do serviço
