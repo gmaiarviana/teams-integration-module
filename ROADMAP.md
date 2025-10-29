@@ -9,10 +9,7 @@
 - Managed Identity resolve o problema de autenticação cross-tenant, porém requer hospedagem do serviço na Azure.
 - O monolito FlakeFlow não precisa estar na Azure e deve continuar onde está.
 
-**Decisão Técnica**
-- Criar um microserviço dedicado na Azure (App Service, Linux, Node 20) com User-Assigned Managed Identity.
-- Expor API REST para o FlakeFlow acionar envios reativos e proativos.
-- Utilizar Bot Framework (botbuilder) e `DefaultAzureCredential` para autenticação via Managed Identity em produção.
+Para decisões técnicas detalhadas (Bot Framework vs Graph API, Managed Identity, hospedagem, contratos REST, storage), consulte `ARCHITECTURE.md`.
 
 **Arquitetura-Alvo (Visão Resumida)**
 
@@ -43,6 +40,21 @@ Microsoft Teams
 - Sucesso 3: Envio proativo a partir de comando do sistema (FlakeFlow → API → Teams)
 
 ---
+
+## 🔁 Referências ao FlakeFlow para Migração
+
+Para acelerar a migração e reaproveitar o que já foi implementado no monolito, usar como base:
+- Código do bot no backend:
+  - `C:\Users\guilherme_viana\Desktop\PRAIA\FlakeFlow\apps\back\src\services\teams-bot\index.ts`
+- Documentação e credenciais:
+  - `C:\Users\guilherme_viana\Desktop\PRAIA\FlakeFlow\apps\back\docs\teams\BOT_SETUP.md`
+  - `C:\Users\guilherme_viana\Desktop\PRAIA\FlakeFlow\apps\back\docs\teams\CREDENTIALS_REFERENCE.md`
+  - `C:\Users\guilherme_viana\Desktop\PRAIA\FlakeFlow\apps\back\docs\teams\CLIENT_INSTALLATION.md`
+  - `C:\Users\guilherme_viana\Desktop\PRAIA\FlakeFlow\apps\back\docs\teams\README.md`
+- Roadmap atual do FlakeFlow (estado/MI):
+  - `C:\Users\guilherme_viana\Desktop\PRAIA\FlakeFlow\MICROSOFT_TEAMS_ROADMAP.md`
+
+Observação: manter `botId` e pacote de app do Teams existentes; atualizar apenas o `Messaging Endpoint` para o novo domínio do microserviço.
 
 ## 🚀 ÉPICO 1: Setup Projeto Base
 
