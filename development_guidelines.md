@@ -132,6 +132,8 @@ Após implementar tarefa:
 2. Inclua critérios claros de aceite
 3. Aguarde confirmação antes de prosseguir
 
+**Nota:** Ao fim de cada tarefa, o Cursor executará automaticamente o(s) comando(s) de teste informado(s) para verificar o resultado, especialmente em tarefas de backend.
+
 **Exemplo:**
 ```powershell
 docker-compose up -d
@@ -168,6 +170,8 @@ Uma funcionalidade está completa quando:
 3. ✅ Sistema funcionando corretamente
 4. ✅ Documentação atualizada (se necessário)
 5. ✅ **Roadmap atualizado** (obrigatório)
+
+Ao finalizar a funcionalidade, revisar `README.md`, `ROADMAP.md` e `ARCHITECTURE.md` para garantir consistência entre código e documentação.
 
 **Documentação que pode precisar atualização:**
 - `frontend/README_FRONTEND.md`: componentes, rotas, bibliotecas
