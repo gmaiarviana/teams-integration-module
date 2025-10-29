@@ -1,0 +1,38 @@
+import { BotFrameworkAdapter, TurnContext } from "botbuilder";
+import { MicrosoftAppCredentials } from "botframework-connector";
+import { DefaultAzureCredential } from "@azure/identity";
+import { env } from "../config/env";
+
+// Preparação para Managed Identity (usado em contextos de saída/proativos)
+// Mantemos a credencial pronta para cenários que requeiram token AAD.
+const managedIdentityCredential = new DefaultAzureCredential();
+
+export const adapter = new BotFrameworkAdapter({
+  appId: env.TEAMS_BOT_ID,
+  // Em Managed Identity, não utilizamos appPassword localmente;
+  // quando necessário, o token AAD é obtido via credencial MI.
+  appPassword: process.env.TEAMS_BOT_PASSWORD,
+});
+
+adapter.onTurnError = async (context: TurnContext, error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error);
+  const timestamp = new Date().toISOString();
+  // Log básico estruturado
+  console.error(`[bot][error][${timestamp}]`, message);
+  try {
+    await context.sendActivity(
+      "Desculpe, ocorreu um erro no bot. Tente novamente mais tarde."
+    );
+  } catch {
+    // Evitar lançar erro no handler
+  }
+};
+
+export function trustServiceUrl(serviceUrl: string): void {
+  // Confia no service URL para chamadas proativas
+  MicrosoftAppCredentials.trustServiceUrl(serviceUrl);
+}
+
+export { managedIdentityCredential };
+
+
