@@ -107,21 +107,14 @@ Observação: manter `botId` e pacote de app do Teams existentes; atualizar apen
 
 #### Funcionalidades
 
-##### 2.1 Express Server + Bot Endpoint
-- **Descrição:** Criar servidor Express mínimo com endpoint do Bot Framework.
-- **Critérios de Aceite:**
-  - ✅ `src/server.ts` criado
-  - ✅ Express server na porta do env (default 3000)
-  - ✅ Middleware `express.json()`
-  - ✅ Endpoint `POST /bot/messages` usando adapter
-  - ✅ Wire com handlers: `onMessage` e `onConversationUpdate`
-  - ✅ Logs básicos de requisições
-- **Validação:**
-  
-      npm run dev
-      # Em outro terminal, simular chamada do Bot Framework
-      Invoke-WebRequest -Uri "http://localhost:3000/bot/messages" -Method POST -Headers @{ "Content-Type" = "application/json" } -Body '{}'
-- **Nota:** Usar código do FlakeFlow como referência (`apps/back/src/services/teams-bot/index.ts`)
+##### 2.1 Express Server + Bot Endpoint ✅
+- **Status:** Concluída
+- **Implementação:** 
+  - Criado `src/server.ts` com Express, middleware JSON e endpoint `POST /bot/messages` conectado ao adapter
+  - Wire com handlers `onMessage` e `onConversationUpdate` implementado
+  - Logs básicos de requisições HTTP adicionados
+  - `src/index.ts` atualizado para iniciar servidor na porta configurada
+- **Commit:** `feat: Express server, POST /bot/messages, GET /health e docs - Funcionalidade 2.1`
 
 ##### 2.2 Echo Básico Funcional
 - **Descrição:** Testar que bot responde mensagens no Teams.
@@ -135,14 +128,12 @@ Observação: manter `botId` e pacote de app do Teams existentes; atualizar apen
   - Enviar "teste" para o bot
   - Verificar logs local + resposta no Teams
 
-##### 2.3 Health Check
-- **Descrição:** Endpoint simples para verificar se serviço está rodando.
-- **Critérios de Aceite:**
-  - ✅ `GET /health` retorna 200 OK
-  - ✅ JSON: `{ status: "ok", timestamp: "..." }`
-- **Validação:**
-  
-      Invoke-WebRequest -Uri "http://localhost:3000/health" -Method GET
+##### 2.3 Health Check ✅
+- **Status:** Concluída
+- **Implementação:** 
+  - Endpoint `GET /health` implementado em `src/server.ts` retornando JSON `{ status: "ok", timestamp: "..." }`
+  - Validação local realizada com sucesso
+- **Commit:** `feat: Express server, POST /bot/messages, GET /health e docs - Funcionalidade 2.1`
 
 ##### 2.4 Deploy Azure
 - **Descrição:** Publicar código na Azure e validar funcionamento.
