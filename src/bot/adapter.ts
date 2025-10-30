@@ -11,8 +11,13 @@ export const adapter = new BotFrameworkAdapter({
   appId: env.TEAMS_BOT_ID,
   // Em Managed Identity, não utilizamos appPassword localmente;
   // quando necessário, o token AAD é obtido via credencial MI.
-  appPassword: process.env.TEAMS_BOT_PASSWORD,
+  appPassword: env.TEAMS_BOT_PASSWORD,
 });
+
+// Logs de inicialização do adapter
+const timestamp = new Date().toISOString();
+console.log(`[bot][adapter][${timestamp}] TEAMS_BOT_ID: ${env.TEAMS_BOT_ID}`);
+console.log(`[bot][adapter][${timestamp}] TEAMS_BOT_PASSWORD: ${env.TEAMS_BOT_PASSWORD ? `existe (${env.TEAMS_BOT_PASSWORD.length} caracteres)` : "não definido"}`);
 
 adapter.onTurnError = async (context: TurnContext, error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);

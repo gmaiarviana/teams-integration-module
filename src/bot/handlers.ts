@@ -28,12 +28,16 @@ export function registerHandlers(_adapter: BotFrameworkAdapter): void {
 
 export async function onMessage(context: TurnContext): Promise<void> {
   if (context.activity.type !== ActivityTypes.Message) return;
+  
+  // Log do serviceUrl recebido
+  const serviceUrl = context.activity.serviceUrl;
+  logInfo("message.serviceUrl", { serviceUrl });
+  
   const tenantId = getTenantId(context);
   const userId = context.activity.from?.id;
   const text = (context.activity.text || "").trim();
 
   // Confiar no serviceUrl antes de responder (evita 401 em alguns cenários)
-  const serviceUrl = context.activity.serviceUrl;
   if (serviceUrl) {
     trustServiceUrl(serviceUrl);
   }

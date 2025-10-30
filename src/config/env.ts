@@ -9,6 +9,7 @@ const envSchema = z.object({
   TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID: z
     .string()
     .min(1, "TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID é obrigatório"),
+  TEAMS_BOT_PASSWORD: z.string().optional(),
   API_KEY: z.string().min(16, "API_KEY deve possuir ao menos 16 caracteres"),
   PORT: z
     .string()
@@ -32,6 +33,7 @@ export const env = {
   TEAMS_BOT_ID: parsed.data.TEAMS_BOT_ID,
   TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID:
     parsed.data.TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID,
+  TEAMS_BOT_PASSWORD: parsed.data.TEAMS_BOT_PASSWORD,
   API_KEY: parsed.data.API_KEY,
   PORT: parsed.data.PORT,
 };
