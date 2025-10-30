@@ -143,7 +143,7 @@ Observação: manter `botId` e pacote de app do Teams existentes; atualizar apen
   - ✅ App Service Plan criado: `teams-integration-plan` (SKU B1, Linux)
   - ✅ Web App criado: `flakeflow-teams-api` (Node 20, Linux) - URL: `https://flakeflow-teams-api.azurewebsites.net`
   - ✅ Managed Identity vinculada: `flakeflow-teams-bot-identity`
-  - ⏳ Pendente: Configurar App Settings
+  - ✅ App Settings configurados: `TEAMS_BOT_ID`, `TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID`, `API_KEY`, `PORT`, `WEBSITE_NODE_DEFAULT_VERSION`, `SCM_DO_BUILD_DURING_DEPLOYMENT`
   - ⏳ Pendente: Deploy do código
   - ⏳ Pendente: Atualizar Messaging Endpoint do Bot Service
   - ⏳ Pendente: Teste end-to-end
