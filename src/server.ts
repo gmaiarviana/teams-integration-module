@@ -1,6 +1,7 @@
 import { adapter } from "./bot/adapter";
 import { onConversationUpdate, onMessage } from "./bot/handlers";
 import type { Request, Response, NextFunction } from "express";
+import type { TurnContext } from "botbuilder";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const express = require("express");
 
@@ -24,10 +25,19 @@ export function createServer() {
 
   // Endpoint do Bot Framework
   app.post("/bot/messages", (req: Request, res: Response) => {
-    adapter.processActivity(req as any, res as any, async (context) => {
+    // CloudAdapter usa process(), BotFrameworkAdapter usa processActivity()
+    const botHandler = async (context: TurnContext) => {
       await onConversationUpdate(context);
       await onMessage(context);
-    });
+    };
+
+    if ('process' in adapter) {
+      // CloudAdapter (Managed Identity)
+      (adapter as any).process(req, res, botHandler);
+    } else {
+      // BotFrameworkAdapter (Client Secret)
+      (adapter as any).processActivity(req, res, botHandler);
+    }
   });
 
   return app;

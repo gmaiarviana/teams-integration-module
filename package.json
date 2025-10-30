@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@azure/identity": "^4.5.0",
-    "botbuilder": "^4.22.4",
-    "botframework-connector": "^4.22.4",
+    "botbuilder": "^4.23.3",
+    "botframework-connector": "^4.23.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",

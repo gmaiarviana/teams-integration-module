@@ -4,19 +4,34 @@ import * as dotenv from "dotenv";
 // Load env vars from .env if present (local/dev)
 dotenv.config();
 
-const envSchema = z.object({
-  TEAMS_BOT_ID: z.string().min(1, "TEAMS_BOT_ID é obrigatório"),
-  TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID: z
-    .string()
-    .min(1, "TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID é obrigatório"),
-  TEAMS_BOT_PASSWORD: z.string().optional(),
-  API_KEY: z.string().min(16, "API_KEY deve possuir ao menos 16 caracteres"),
-  PORT: z
-    .string()
-    .optional()
-    .transform((val) => (val && /^\d+$/.test(val) ? Number(val) : 3000))
-    .pipe(z.number().int().positive()),
-});
+const envSchema = z
+  .object({
+    TEAMS_BOT_ID: z.string().min(1, "TEAMS_BOT_ID é obrigatório"),
+    TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID: z.string().optional(),
+    TEAMS_BOT_TENANT_ID: z.string().optional(),
+    TEAMS_BOT_PASSWORD: z.string().optional(),
+    API_KEY: z.string().min(16, "API_KEY deve possuir ao menos 16 caracteres"),
+    PORT: z
+      .string()
+      .optional()
+      .transform((val) => (val && /^\d+$/.test(val) ? Number(val) : 3000))
+      .pipe(z.number().int().positive()),
+  })
+  .refine(
+    (data) => {
+      // Validação: Se TEAMS_BOT_PASSWORD não existe, TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID e TEAMS_BOT_TENANT_ID são obrigatórios
+      if (!data.TEAMS_BOT_PASSWORD) {
+        if (!data.TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID || !data.TEAMS_BOT_TENANT_ID) {
+          return false;
+        }
+      }
+      return true;
+    },
+    {
+      message:
+        "TEAMS_BOT_PASSWORD (para dev local) OU (TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID + TEAMS_BOT_TENANT_ID) (para Azure Managed Identity) devem estar definidos.",
+    }
+  );
 
 const parsed = envSchema.safeParse(process.env);
 
@@ -33,6 +48,7 @@ export const env = {
   TEAMS_BOT_ID: parsed.data.TEAMS_BOT_ID,
   TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID:
     parsed.data.TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID,
+  TEAMS_BOT_TENANT_ID: parsed.data.TEAMS_BOT_TENANT_ID,
   TEAMS_BOT_PASSWORD: parsed.data.TEAMS_BOT_PASSWORD,
   API_KEY: parsed.data.API_KEY,
   PORT: parsed.data.PORT,
