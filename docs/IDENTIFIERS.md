@@ -28,6 +28,12 @@
 - Runtime: Node.js 20 LTS (Linux)
 - Managed Identity vinculada: ✅ `flakeflow-teams-bot-identity`
 
+## App Settings (Produção Azure)
+```
+AZURE_CLIENT_ID=7b383354-8b9f-4394-8724-e6e7fff5f258
+AZURE_TENANT_ID=199cd63d-d06d-42c6-8976-6588f48ff6f8
+```
+
 ## Túnel público (dev)
 - URL atual: `https://a718a8c9e801.ngrok-free.app`
 
