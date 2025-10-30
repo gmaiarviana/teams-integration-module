@@ -10,6 +10,8 @@
 ## Managed Identity (User-Assigned)
 - Nome: flakeflow-teams-bot-identity
 - Client ID: `7b383354-8b9f-4394-8724-e6e7fff5f258`
+- Principal ID: `246540f8-154d-4d9f-87c0-07f1a7819b0e`
+- Resource Group: `flakeflow-teams-bot-rg`
 
 ## Azure Bot Service
 - Nome: flakeflow-teams-bot-v4
@@ -24,6 +26,7 @@
 - Web App: `flakeflow-teams-api`
 - URL: `https://flakeflow-teams-api.azurewebsites.net`
 - Runtime: Node.js 20 LTS (Linux)
+- Managed Identity vinculada: ✅ `flakeflow-teams-bot-identity`
 
 ## Túnel público (dev)
 - URL atual: `https://a718a8c9e801.ngrok-free.app`
@@ -31,4 +34,4 @@
 ## Observações
 - Em desenvolvimento local, use Client Secret no `.env` (arquivo separado não versionado).
 - Em produção (Azure), use Managed Identity (sem secret).
-- Managed Identity `flakeflow-teams-bot-identity` ainda não foi vinculada ao Web App (pendente).
+- ✅ Managed Identity `flakeflow-teams-bot-identity` vinculada ao Web App com sucesso.

@@ -142,12 +142,11 @@ Observação: manter `botId` e pacote de app do Teams existentes; atualizar apen
   - ✅ Resource Group criado: `teams-integration-rg` (região: Brazil South)
   - ✅ App Service Plan criado: `teams-integration-plan` (SKU B1, Linux)
   - ✅ Web App criado: `flakeflow-teams-api` (Node 20, Linux) - URL: `https://flakeflow-teams-api.azurewebsites.net`
-  - ⏳ Pendente: Vincular Managed Identity ao Web App (problema de reconhecimento do recurso no Azure CLI)
+  - ✅ Managed Identity vinculada: `flakeflow-teams-bot-identity`
   - ⏳ Pendente: Configurar App Settings
   - ⏳ Pendente: Deploy do código
   - ⏳ Pendente: Atualizar Messaging Endpoint do Bot Service
   - ⏳ Pendente: Teste end-to-end
-- **Observação:** Web App foi criado com sucesso e aparece em `az webapp list`, mas comandos individuais (`az webapp show`) não o encontram temporariamente. Pode ser propagação do Azure ou problema de cache. Continuar via Portal Azure ou tentar novamente após alguns minutos.
 
 ---
 
