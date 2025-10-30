@@ -1,5 +1,5 @@
 import { BotFrameworkAdapter, TurnContext, ConversationReference, ActivityTypes } from "botbuilder";
-import { trustServiceUrl } from "./adapter";
+import { MicrosoftAppCredentials } from "botframework-connector";
 
 type ConversationKey = string;
 
@@ -29,18 +29,16 @@ export function registerHandlers(_adapter: BotFrameworkAdapter): void {
 export async function onMessage(context: TurnContext): Promise<void> {
   if (context.activity.type !== ActivityTypes.Message) return;
   
-  // Log do serviceUrl recebido
+  // CRÍTICO: Confiar no serviceUrl ANTES de qualquer operação de envio
   const serviceUrl = context.activity.serviceUrl;
-  logInfo("message.serviceUrl", { serviceUrl });
+  if (serviceUrl) {
+    MicrosoftAppCredentials.trustServiceUrl(serviceUrl);
+    logInfo("message.serviceUrl.trusted", { serviceUrl });
+  }
   
   const tenantId = getTenantId(context);
   const userId = context.activity.from?.id;
   const text = (context.activity.text || "").trim();
-
-  // Confiar no serviceUrl antes de responder (evita 401 em alguns cenários)
-  if (serviceUrl) {
-    trustServiceUrl(serviceUrl);
-  }
 
   logInfo("message.received", { tenantId, userId, textLength: text.length });
 
@@ -54,8 +52,10 @@ export async function onConversationUpdate(context: TurnContext): Promise<void> 
   const userId = context.activity.recipient?.id || context.activity.from?.id;
 
   const reference = TurnContext.getConversationReference(context.activity);
+  
+  // Confiar no serviceUrl para comunicações futuras
   if (reference.serviceUrl) {
-    trustServiceUrl(reference.serviceUrl);
+    MicrosoftAppCredentials.trustServiceUrl(reference.serviceUrl);
   }
 
   const key = getConversationKey(tenantId, userId);

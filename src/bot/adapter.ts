@@ -25,6 +25,10 @@ adapter.onTurnError = async (context: TurnContext, error: unknown) => {
   // Log básico estruturado
   console.error(`[bot][error][${timestamp}]`, message);
   try {
+    // Garantir que o serviceUrl seja confiável antes de tentar enviar mensagem de erro
+    if (context.activity.serviceUrl) {
+      MicrosoftAppCredentials.trustServiceUrl(context.activity.serviceUrl);
+    }
     await context.sendActivity(
       "Desculpe, ocorreu um erro no bot. Tente novamente mais tarde."
     );
@@ -32,11 +36,6 @@ adapter.onTurnError = async (context: TurnContext, error: unknown) => {
     // Evitar lançar erro no handler
   }
 };
-
-export function trustServiceUrl(serviceUrl: string): void {
-  // Confia no service URL para chamadas proativas
-  MicrosoftAppCredentials.trustServiceUrl(serviceUrl);
-}
 
 export { managedIdentityCredential };
 
