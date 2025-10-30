@@ -122,6 +122,32 @@ Nota: os endpoints HTTP (health e bot) serão introduzidos no Épico 2 (`src/ser
 ## Deploy na Azure (recomendado)
 Recomendamos App Service (Linux) com runtime Node 20 e Managed Identity:
 
+### Pré-requisito: Azure CLI
+
+**Instalação:**
+```powershell
+winget install -e --id Microsoft.AzureCLI
+```
+
+**Configuração do PATH (se `az` não for reconhecido):**
+
+O Azure CLI pode não estar no PATH após instalação. Para adicionar **permanentemente**:
+
+```powershell
+# Adicionar ao PATH do usuário (permanente)
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin", [EnvironmentVariableTarget]::User)
+```
+
+**Importante:** Após executar o comando acima, **feche e abra um novo terminal PowerShell** para que a alteração tenha efeito.
+
+**Solução temporária (para sessão atual):**
+```powershell
+# Adicionar apenas para a sessão atual
+$env:Path += ";C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin"
+```
+
+### Processo de Deploy
+
 1) Autenticar
 ```powershell
 az login

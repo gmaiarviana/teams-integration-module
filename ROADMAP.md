@@ -138,15 +138,17 @@ Observação: manter `botId` e pacote de app do Teams existentes; atualizar apen
 ##### 2.4 Deploy Azure
 - **Status:** Em progresso
 - **Descrição:** Publicar código na Azure e validar funcionamento.
-- **Progresso:**
+- **Implementação:**
   - ✅ Resource Group criado: `teams-integration-rg` (região: Brazil South)
   - ✅ App Service Plan criado: `teams-integration-plan` (SKU B1, Linux)
-  - ✅ Web App criado: `flakeflow-teams-api` (Node 20, Linux) - URL: `https://flakeflow-teams-api.azurewebsites.net`
+  - ✅ Web App criado: `flakeflow-teams-api` (Node 20, Linux)
   - ✅ Managed Identity vinculada: `flakeflow-teams-bot-identity`
-  - ✅ App Settings configurados: `TEAMS_BOT_ID`, `TEAMS_BOT_MANAGED_IDENTITY_CLIENT_ID`, `API_KEY`, `PORT`, `WEBSITE_NODE_DEFAULT_VERSION`, `SCM_DO_BUILD_DURING_DEPLOYMENT`
-  - ⏳ Pendente: Deploy do código
+  - ✅ App Settings configurados (TEAMS_BOT_ID, API_KEY, PORT, etc)
+  - ✅ Deploy realizado com sucesso (incluindo node_modules no zip via script Node.js)
+  - ✅ Health check funcional: `https://flakeflow-teams-api.azurewebsites.net/health` retorna 200 OK
   - ⏳ Pendente: Atualizar Messaging Endpoint do Bot Service
-  - ⏳ Pendente: Teste end-to-end
+  - ⏳ Pendente: Teste end-to-end com Teams
+- **Observação:** Solução de deploy utiliza script `create-deploy-zip.js` com biblioteca `archiver` para criar ZIP Unix-friendly incluindo `node_modules`, evitando problemas de paths Windows (backslash) no Linux Azure.
 
 ---
 

@@ -3,13 +3,15 @@ build/
 dist/
 .env
 .env.*
-!.env.example
 npm-debug.log*
 yarn-error.log*
 .DS_Store
 coverage/
 .tmp/
 .vscode/
+
+# Deploy artifacts
+*.zip
 
 docs/SECRETS.local.md
 
