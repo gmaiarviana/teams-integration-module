@@ -49,9 +49,9 @@ Componentes principais:
 - Fase 2: persistência em storage (Redis/DB) para produção
 
 ## Topologia de Deploy (Produção)
-- Azure Resource Group: `teams-integration-rg`
-- App Service Plan: `teams-integration-plan` (SKU B1)
-- Web App: `flakeflow-teams-api` (Node 20)
+- Azure Resource Group: `teams-integration-rg` (Região: Brazil South)
+- App Service Plan: `teams-integration-plan` (SKU B1, Linux)
+- Web App: `flakeflow-teams-api` (Node 20, Linux)
 - User-Assigned Managed Identity: `flakeflow-teams-bot-identity`
 - Bot Service: vinculado ao App Registration do bot
 - App Settings:

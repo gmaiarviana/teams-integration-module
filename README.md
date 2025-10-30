@@ -129,9 +129,23 @@ az login
 
 2) Criar/validar recursos
 ```powershell
+# Verificar se Resource Group existe
 az group show --name teams-integration-rg
+
+# Se não existir, criar (região: Brazil South)
+az group create --name teams-integration-rg --location "Brazil South"
+
+# Verificar App Service Plan
 az appservice plan show --name teams-integration-plan --resource-group teams-integration-rg
+
+# Se não existir, criar
+az appservice plan create --name teams-integration-plan --resource-group teams-integration-rg --sku B1 --is-linux
+
+# Verificar Web App
 az webapp show --name flakeflow-teams-api --resource-group teams-integration-rg
+
+# Se não existir, criar
+az webapp create --name flakeflow-teams-api --resource-group teams-integration-rg --plan teams-integration-plan --runtime "NODE:20-lts"
 ```
 
 3) Atribuir Managed Identity (se necessário)

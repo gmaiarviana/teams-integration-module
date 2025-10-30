@@ -136,17 +136,18 @@ Observação: manter `botId` e pacote de app do Teams existentes; atualizar apen
 - **Commit:** `feat: Express server, POST /bot/messages, GET /health e docs - Funcionalidade 2.1`
 
 ##### 2.4 Deploy Azure
+- **Status:** Em progresso
 - **Descrição:** Publicar código na Azure e validar funcionamento.
-- **Critérios de Aceite:**
-  - ✅ Criar App Service na Azure (ou usar existente)
-  - ✅ Deploy do código (zip ou runtime direto)
-  - ✅ Health check responde em produção
-  - ✅ Atualizar Messaging Endpoint do Bot Service
-  - ✅ Bot continua respondendo no Teams
-- **Validação:**
-  
-      Invoke-WebRequest -Uri "https://flakeflow-teams-api.azurewebsites.net/health" -Method GET
-      # Enviar mensagem no Teams e verificar resposta
+- **Progresso:**
+  - ✅ Resource Group criado: `teams-integration-rg` (região: Brazil South)
+  - ✅ App Service Plan criado: `teams-integration-plan` (SKU B1, Linux)
+  - ✅ Web App criado: `flakeflow-teams-api` (Node 20, Linux) - URL: `https://flakeflow-teams-api.azurewebsites.net`
+  - ⏳ Pendente: Vincular Managed Identity ao Web App (problema de reconhecimento do recurso no Azure CLI)
+  - ⏳ Pendente: Configurar App Settings
+  - ⏳ Pendente: Deploy do código
+  - ⏳ Pendente: Atualizar Messaging Endpoint do Bot Service
+  - ⏳ Pendente: Teste end-to-end
+- **Observação:** Web App foi criado com sucesso e aparece em `az webapp list`, mas comandos individuais (`az webapp show`) não o encontram temporariamente. Pode ser propagação do Azure ou problema de cache. Continuar via Portal Azure ou tentar novamente após alguns minutos.
 
 ---
 
