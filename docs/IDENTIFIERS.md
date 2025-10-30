@@ -16,8 +16,8 @@
 ## Azure Bot Service
 - Nome: flakeflow-teams-bot-v4
 - Microsoft App ID: `a1dc1605-eb6b-4c3a-8070-86e7c71e6f4e`
-- Messaging Endpoint (atual): `https://a718a8c9e801.ngrok-free.app/bot/messages`
-- Messaging Endpoint (produção - a atualizar): `https://flakeflow-teams-api.azurewebsites.net/bot/messages`
+- Messaging Endpoint (dev/local): `https://a718a8c9e801.ngrok-free.app/bot/messages`
+- Messaging Endpoint (produção): ✅ `https://flakeflow-teams-api.azurewebsites.net/bot/messages`
 
 ## Azure App Service (Produção)
 - Resource Group: `teams-integration-rg`

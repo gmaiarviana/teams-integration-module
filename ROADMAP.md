@@ -136,19 +136,23 @@ Observação: manter `botId` e pacote de app do Teams existentes; atualizar apen
 - **Commit:** `feat: Express server, POST /bot/messages, GET /health e docs - Funcionalidade 2.1`
 
 ##### 2.4 Deploy Azure
-- **Status:** Em progresso
+- **Status:** Parcialmente concluído (infraestrutura e deploy OK, aguardando teste no Teams)
 - **Descrição:** Publicar código na Azure e validar funcionamento.
 - **Implementação:**
   - ✅ Resource Group criado: `teams-integration-rg` (região: Brazil South)
   - ✅ App Service Plan criado: `teams-integration-plan` (SKU B1, Linux)
   - ✅ Web App criado: `flakeflow-teams-api` (Node 20, Linux)
   - ✅ Managed Identity vinculada: `flakeflow-teams-bot-identity`
-  - ✅ App Settings configurados (TEAMS_BOT_ID, API_KEY, PORT, etc)
+  - ✅ App Settings configurados corretamente (verificado via Azure CLI)
   - ✅ Deploy realizado com sucesso (incluindo node_modules no zip via script Node.js)
   - ✅ Health check funcional: `https://flakeflow-teams-api.azurewebsites.net/health` retorna 200 OK
-  - ⏳ Pendente: Atualizar Messaging Endpoint do Bot Service
-  - ⏳ Pendente: Teste end-to-end com Teams
-- **Observação:** Solução de deploy utiliza script `create-deploy-zip.js` com biblioteca `archiver` para criar ZIP Unix-friendly incluindo `node_modules`, evitando problemas de paths Windows (backslash) no Linux Azure.
+  - ✅ Messaging Endpoint atualizado no Bot Service: `https://flakeflow-teams-api.azurewebsites.net/bot/messages`
+  - ⚠️ Teste no Teams pendente: Bot não está respondendo (possível cache do Teams ou tempo de propagação)
+- **Observações:**
+  - Deploy utiliza script `create-deploy-zip.js` com biblioteca `archiver` para criar ZIP Unix-friendly incluindo `node_modules`
+  - Logging de aplicação habilitado no Azure (verbose level)
+  - Próximo passo: Aguardar propagação ou reinstalar bot no Teams para testar comunicação
+- **Commit:** `docs: atualiza endpoint do Bot Service e status do deploy - Funcionalidade 2.4`
 
 ---
 
