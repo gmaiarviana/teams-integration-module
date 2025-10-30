@@ -48,6 +48,75 @@ Componentes principais:
 - Fase 1: armazenamento em memória para validação
 - Fase 2: persistência em storage (Redis/DB) para produção
 
+## Decisões de Deploy
+
+Durante a implementação do deploy no Azure App Service (funcionalidade 2.4), decisões arquiteturais foram tomadas para garantir compatibilidade com o ambiente gerenciado da Azure e facilitar manutenção futura:
+
+### 1) Estrutura de Paths Unix-Friendly no Artifact de Deploy
+
+**Decisão**: O script `create-deploy-zip.js` cria uma estrutura de diretórios com paths Unix-style (`/`) independente do SO de desenvolvimento.
+
+**Contexto**: Azure App Service Linux executa em containers baseados em Linux. Paths Windows (`\`) causariam falhas de resolução de módulos e arquivos em runtime.
+
+**Impacto na Manutenção**:
+- Deploy funciona consistentemente de qualquer SO (Windows/macOS/Linux)
+- Testes locais em Windows devem usar Node.js (que normaliza paths automaticamente)
+- Scripts de build devem sempre usar `path.posix` ou normalização explícita
+
+### 2) Inclusão de node_modules no Artifact de Deploy
+
+**Decisão**: O ZIP de deploy inclui `node_modules` completo, gerado via `npm ci` antes do empacotamento.
+
+**Contexto**: Azure Oryx (motor de build do App Service) otimiza deploys detectando `node_modules` pré-compilado no artifact. Isso elimina:
+- Build remoto lento e suscetível a falhas de rede durante `npm install`
+- Inconsistências entre versões de dependências (lock file pode divergir)
+- Necessidade de compilação nativa de módulos no ambiente Azure
+
+**Impacto na Manutenção**:
+- Artifact maior (~50-150MB), mas deploy mais rápido e confiável
+- `npm ci` deve ser executado em ambiente Linux ou com builds cross-platform para módulos nativos
+- Atualizações de dependências: regerar `node_modules` e recriar ZIP
+
+### 3) Container Docker Gerenciado Automaticamente
+
+**Decisão**: Azure App Service usa imagem Docker gerenciada pela plataforma (Node 20 LTS), não Dockerfile customizado.
+
+**Contexto**: App Service para Node.js provisiona automaticamente container otimizado baseado em:
+- Runtime detectado (`package.json` → Node 20)
+- Startup command configurado em App Settings ou detectado de `package.json`
+- Oryx aplica melhores práticas (caching, otimização de cold start)
+
+**Impacto na Manutenção**:
+- Não gerenciamos Dockerfile, camadas de imagem ou registry
+- Upgrade de Node: alterar apenas configuração do App Service (`WEBSITE_NODE_DEFAULT_VERSION`)
+- Portabilidade reduzida: migração para Kubernetes/outros orquestrados exige criar Dockerfile próprio
+- Trade-off: simplicidade operacional vs. controle granular
+
+### 4) Configuração via App Settings (Não .env)
+
+**Decisão**: Variáveis de ambiente são configuradas exclusivamente via Azure App Settings, sem arquivo `.env` no artifact.
+
+**Contexto**: 
+- App Service injeta App Settings como variáveis de ambiente no runtime do container
+- `.env` seria sobrescrito/ignorado e introduz risco de vazar credenciais em repositório
+- Managed Identity elimina necessidade de `TEAMS_BOT_PASSWORD` em produção
+
+**Impacto na Manutenção**:
+- Desenvolvimento local: usar `.env` (gitignored) com credenciais de dev
+- Produção: gerenciar secrets via Portal Azure/ARM templates/Terraform
+- Rotação de `API_KEY`: alterar App Setting e reiniciar app (sem redeploy)
+- CI/CD: scripts devem configurar App Settings após deploy do ZIP
+
+### Resumo de Artefatos e Configuração
+
+| Componente           | Desenvolvimento Local           | Produção Azure                  |
+|----------------------|---------------------------------|---------------------------------|
+| **Variáveis**        | `.env` (gitignored)             | App Settings                    |
+| **node_modules**     | `npm install` local             | Incluído no ZIP de deploy       |
+| **Runtime**          | Node local                      | Container gerenciado (Node 20)  |
+| **Autenticação Bot** | Client Secret                   | Managed Identity                |
+| **Deploy**           | N/A                             | ZIP via Kudu API / az cli       |
+
 ## Topologia de Deploy (Produção)
 - Azure Resource Group: `teams-integration-rg` (Região: Brazil South)
 - App Service Plan: `teams-integration-plan` (SKU B1, Linux)
